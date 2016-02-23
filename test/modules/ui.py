@@ -5,6 +5,7 @@ import wave
 import struct
 import matplotlib.pyplot as plt
 from lang import es as dictionary
+from graph import *
 
 
 class Ui(object):
@@ -12,15 +13,20 @@ class Ui(object):
         self.audio_data = None
         self.real_data = []  # Real numbers of the audio File
         self.wav_file = ''
-        self.file_name = StringVar()
-        self.file_frames = StringVar()
-        self.file_chanels = StringVar()
-        self.file_frame_rate = StringVar()
 
-        self.file_name.set(dictionary.get('NoFile'))
-        self.file_frames.set("0")
-        self.file_chanels.set("0")
-        self.file_frame_rate.set("0")
+        self.labels = dict()  # Dictionary for labeling
+
+        self.labels['file_name'] = StringVar()
+        self.labels['file_frames'] = StringVar()
+        self.labels['file_chanels'] = StringVar()
+        self.labels['file_frame_rate'] = StringVar()
+        self.labels['file_samp_width'] = StringVar()
+
+        self.labels['file_name'].set(dictionary.get('NoFile'))
+        self.labels['file_frames'].set("0")
+        self.labels['file_chanels'].set("0")
+        self.labels['file_frame_rate'].set("0")
+        self.labels['file_samp_width'].set("0")
 
         self.disabled_buttons = []
 
@@ -28,7 +34,7 @@ class Ui(object):
         main_frame.pack()
 
         # frame for plotting
-        self.canvas = Canvas(main_frame, bg="#000", cursor="circle", width=800, height=400, bd=0)
+        self.canvas = Canvas(main_frame, bg="#000", cursor="circle", width=1200, height=400, bd=0)
         self.canvas.pack()
 
         options_frame = Frame(main_frame, width=800, height=200)
@@ -37,12 +43,13 @@ class Ui(object):
         file_button = Button(options_frame, width=10, text=dictionary.get("ImportWav"), command=self.get_file)
         file_button.grid(row=1)
 
-        file_label = Label(options_frame, padx=10, textvariable=self.file_name)
-        file_label.grid(row=1, column=1)
+        file_label = Label(options_frame, padx=10, textvariable=self.labels['file_name'])
+        file_label.grid(row=1, column=1, sticky=W, columnspan=len(self.labels)-1)
 
-        InfoDisplay(options_frame, 2, 0, dictionary.get("Frames"), self.file_frames)
-        InfoDisplay(options_frame, 2, 1, dictionary.get("Chanels"), self.file_chanels)
-        InfoDisplay(options_frame, 2, 2, dictionary.get("FrameRate"), self.file_frame_rate)
+        InfoDisplay(options_frame, 2, 0, dictionary.get("Frames"), self.labels['file_frames'])
+        InfoDisplay(options_frame, 2, 1, dictionary.get("Chanels"), self.labels['file_chanels'])
+        InfoDisplay(options_frame, 2, 2, dictionary.get("FrameRate"), self.labels['file_frame_rate'])
+        InfoDisplay(options_frame, 2, 3, dictionary.get("SampWidth"), self.labels['file_samp_width'])
 
         plot_button = Button(options_frame, width=10, text=dictionary.get("Plot"), command=self.plot)
         plot_button.grid(row=4)
@@ -52,6 +59,10 @@ class Ui(object):
         save_button.grid(row=4, column=1)
         self.disabled_buttons.append(save_button)
 
+        clean_button = Button(options_frame, width=10, text=dictionary.get("Clean"), command=self.clean)
+        clean_button.grid(row=4, column=2)
+        self.disabled_buttons.append(clean_button)
+
         for b in self.disabled_buttons:
             b.config(state="disabled")
 
@@ -60,14 +71,17 @@ class Ui(object):
         self.wav_file = askopenfile(filetypes=f_types)
 
         if self.wav_file is not None:
-            self.file_name.set(self.wav_file.name)
+            self.labels['file_name'].set(self.wav_file.name)
             self.process()
 
     def process(self):
         self.audio_data = wave.open(self.wav_file, 'rb')
-        self.file_chanels.set(self.audio_data.getnchannels())
-        self.file_frames.set(self.audio_data.getnframes())
-        self.file_frame_rate.set(self.audio_data.getframerate())
+        self.labels['file_chanels'].set(self.audio_data.getnchannels())
+        self.labels['file_frames'].set(self.audio_data.getnframes())
+        self.labels['file_frame_rate'].set(self.audio_data.getframerate())
+        self.labels['file_samp_width'].set(self.audio_data.getsampwidth())
+
+        self.real_data = []
 
         if self.audio_data.getnchannels() == 1:
             for i in range(0, self.audio_data.getnframes()):
@@ -80,8 +94,12 @@ class Ui(object):
         self.audio_data.close()
 
     def plot(self):
-        plt.plot(self.real_data)
-        plt.show()
+        # plt.plot(self.real_data)
+        # plt.show()
+        # graph object for plotting
+        graph = Graph(self.canvas)
+
+        graph.draw_graph(self.real_data)
 
     def save_wav(self):
         file_name = asksaveasfile(mode="w", defaultextension=".wav")
@@ -92,3 +110,7 @@ class Ui(object):
                 output_audio.writeframes(struct.pack('h', i))
             file_name.close()
             output_audio.close()
+
+    def clean(self):
+        graph = Graph(self.canvas)
+        graph.clean_canvas()

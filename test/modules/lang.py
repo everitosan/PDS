@@ -1,9 +1,11 @@
 es = {
     "NoFile": "Archivo no seleccionado ...",
     "ImportWav":"Importar WAV",
-    "Frames": "Frames",
+    "Frames": "Muestras",
     "Chanels": "Canales",
-    "FrameRate": "Frame Rate",
+    "FrameRate": "F. Muestreo",
+    "SampWidth":"Samp Width",
     "Plot": "Graficar",
-    "Save": "Guardar"
+    "Save": "Guardar",
+    "Clean": "limpiar"
 }
