@@ -6,6 +6,7 @@ import struct
 import matplotlib.pyplot as plt
 from lang import es as dictionary
 from graph import *
+import numpy as np
 
 
 class Ui(object):
@@ -33,10 +34,6 @@ class Ui(object):
         main_frame = Frame(root_window, width=800, height=600)
         main_frame.pack()
 
-        # frame for plotting
-        self.canvas = Canvas(main_frame, bg="#000", cursor="circle", width=1200, height=400, bd=0)
-        self.canvas.pack()
-
         options_frame = Frame(main_frame, width=800, height=200)
         options_frame.pack()
 
@@ -58,10 +55,6 @@ class Ui(object):
         save_button = Button(options_frame, width=10, text=dictionary.get("Save"), command=self.save_wav)
         save_button.grid(row=4, column=1)
         self.disabled_buttons.append(save_button)
-
-        clean_button = Button(options_frame, width=10, text=dictionary.get("Clean"), command=self.clean)
-        clean_button.grid(row=4, column=2)
-        self.disabled_buttons.append(clean_button)
 
         for b in self.disabled_buttons:
             b.config(state="disabled")
@@ -94,12 +87,20 @@ class Ui(object):
         self.audio_data.close()
 
     def plot(self):
-        # plt.plot(self.real_data)
-        # plt.show()
-        # graph object for plotting
-        graph = Graph(self.canvas)
+        fs = float(self.labels['file_frame_rate'].get())
+        sn = float(self.labels['file_frames'].get())
 
-        graph.draw_graph(self.real_data)
+        x = np.arange(0, sn/fs, 1/fs)
+
+        print fs
+        print sn
+
+        plt.plot(x, self.real_data)
+        plt.show()
+        # graph object for plotting
+        # graph = Graph(self.canvas)
+
+        # graph.draw_graph(self.real_data)
 
     def save_wav(self):
         file_name = asksaveasfile(mode="w", defaultextension=".wav")
@@ -110,7 +111,3 @@ class Ui(object):
                 output_audio.writeframes(struct.pack('h', i))
             file_name.close()
             output_audio.close()
-
-    def clean(self):
-        graph = Graph(self.canvas)
-        graph.clean_canvas()
