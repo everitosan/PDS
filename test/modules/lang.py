@@ -5,7 +5,8 @@ es = {
     "Chanels": "Canales",
     "FrameRate": "F. Muestreo",
     "SampWidth":"Samp Width",
-    "Plot": "Graficar",
+    "PlotT": "Graficar en T",
+    "PlotF": "Graficar en F",
     "Save": "Guardar",
     "Clean": "limpiar"
 }

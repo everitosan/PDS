@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from lang import es as dictionary
 from graph import *
 import numpy as np
+from scipy.fftpack import fft
 
 
 class Ui(object):
@@ -48,12 +49,16 @@ class Ui(object):
         InfoDisplay(options_frame, 2, 2, dictionary.get("FrameRate"), self.labels['file_frame_rate'])
         InfoDisplay(options_frame, 2, 3, dictionary.get("SampWidth"), self.labels['file_samp_width'])
 
-        plot_button = Button(options_frame, width=10, text=dictionary.get("Plot"), command=self.plot)
+        plot_button = Button(options_frame, width=10, text=dictionary.get("PlotT"), command=self.plot)
         plot_button.grid(row=4)
         self.disabled_buttons.append(plot_button)
 
+        plot_button_f = Button(options_frame, width=10, text=dictionary.get("PlotF"), command=self.plot_f)
+        plot_button_f.grid(row=4, column=1)
+        self.disabled_buttons.append(plot_button_f)
+
         save_button = Button(options_frame, width=10, text=dictionary.get("Save"), command=self.save_wav)
-        save_button.grid(row=4, column=1)
+        save_button.grid(row=4, column=2)
         self.disabled_buttons.append(save_button)
 
         for b in self.disabled_buttons:
@@ -97,10 +102,21 @@ class Ui(object):
 
         plt.plot(x, self.real_data)
         plt.show()
-        # graph object for plotting
-        # graph = Graph(self.canvas)
 
-        # graph.draw_graph(self.real_data)
+    def plot_f(self):
+        n = float(self.labels['file_frames'].get())
+        fs = float(self.labels['file_frame_rate'].get())
+        y = fft(self.real_data)
+        y = np.absolute(y)
+
+        y2 = y[0:len(y)/2]
+        res = fs / n
+
+        x = np.arange(0, fs/2, res)
+
+
+        plt.plot(x, y2)
+        plt.show()
 
     def save_wav(self):
         file_name = asksaveasfile(mode="w", defaultextension=".wav")

@@ -33,8 +33,6 @@ class Graph(object):
         self.draw_line()
 
     def draw_line(self):
-        # self.clean_canvas()
-        # self.canvas.coords(self.line, 0, 0, 500, 100, 1200, 400)
         self.line = self.canvas.create_line(self.data, fill="#94004A")
         self.canvas.itemconfig(self.line, fill="green")
         print "Plot finished"
